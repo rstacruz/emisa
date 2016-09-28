@@ -1,20 +1,20 @@
-# Premail
+# Emisa
 
 ## Installation
 
-1. Add `premail` to your list of dependencies in `mix.exs`:
+1. Add `emisa` to your list of dependencies in `mix.exs`:
 
   ```elixir
   def deps do
-    [{:premail, "~> 0.1.0"}]
+    [{:emisa, "~> 0.1.0"}]
   end
   ```
 
-2. Ensure `premail` is started before your application:
+2. Ensure `emisa` is started before your application:
 
   ```elixir
   def application do
-    [applications: [:premail]]
+    [applications: [:emisa]]
   end
   ```
 
@@ -31,5 +31,5 @@ css = """
 div { color: blue }
 """
 
-Premail.build(html, css)
+Emisa.build(html, css)
 ```

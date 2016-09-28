@@ -1,6 +1,6 @@
-defmodule PremailTest do
+defmodule EmisaTest do
   use ExUnit.Case
-  doctest Premail
+  doctest Emisa
 
   test "the truth" do
     assert 1 + 1 == 2

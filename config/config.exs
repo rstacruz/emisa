@@ -10,11 +10,11 @@ use Mix.Config
 
 # You can configure for your application as:
 #
-#     config :premail, key: :value
+#     config :emisa, key: :value
 #
 # And access this configuration in your application as:
 #
-#     Application.get_env(:premail, :key)
+#     Application.get_env(:emisa, :key)
 #
 # Or configure a 3rd-party app:
 #
