@@ -9,92 +9,121 @@ defmodule Emisa.Transformer do
 
   alias Floki.Selector
 
+  @doc """
+  Transforms an HTML tree by passing all nodes to function `fun`.
+  """
   def transform(html, fun) do
     transform(html, "*", fun)
   end
 
+  @doc """
+  Transforms an HTML tree by passing all nodes matching `selector_string` to
+  function `fun`.
+  """
   def transform(html, selector_string, fun) do
     selectors = get_selectors(selector_string)
 
     selectors |> Enum.reduce(html, fn (selector, html) ->
-      traverse(html, [], selector, fun)
+      traverse([html], selector, fun) |> Enum.at(0)
     end)
   end
 
-  def traverse(html, siblings, selector, fun)
-  def traverse([], _, _, _), do: []
-  def traverse({}, _, _, _), do: {}
-  def traverse(string, _, _, _) when is_binary(string), do: string
+  defp traverse([], _, _), do: []
 
-  def traverse([html | siblings], _, selectors, fun) do
-    html = traverse(html, siblings, selectors, fun)
-    siblings = traverse(siblings, [], selectors, fun)
-    [html] ++ siblings
-  end
-
-  def traverse({_, _, _} = html, siblings, selector, fun) do
+  defp traverse([{_, _, _} = html | siblings], selector, fun) do
     if Selector.match?(html, selector) do
-      combinator = selector.combinator
-
-      case combinator do
-        nil ->
-          fun.(html)
-          |> update_children(&traverse(&1, siblings, selector, fun))
-        _ ->
-          traverse_using(html, combinator, siblings, fun)
-      end
+      [html | siblings]
+      |> traverse_combinator(selector, fun)
     else
-      html |> update_children(&traverse(&1, siblings, selector, fun))
+      html = html
+      |> update_children(&traverse(&1, selector, fun))
+      siblings = traverse(siblings, selector, fun)
+      [html | siblings]
     end
   end
 
-  def traverse_using({_, _, _} = html, combinator, siblings, fun) do
-    selector = combinator.selector
+  defp traverse([node | rest], selector, fun),
+    do: [node | traverse(rest, selector, fun)]
 
-    case combinator.match_type do
-      :descendant ->
-        html |> update_children(&traverse(&1, [], selector, fun))
-      :child ->
-        html |> update_children(&traverse_children(&1, selector, fun))
-      # :sibling ->
-      #   siblings = traverse_sibling(siblings, selector, fun)
-      # :general_sibling ->
-      #   traverse_general_sibling(siblings, selector, fun)
-      other ->
-        raise "Combinator of type \"#{other}\" not implemented"
+  defp traverse_combinator([{_, _, _} = html | siblings], selector, fun) do
+    combinator = selector.combinator
+    case combinator && combinator.match_type do
+      nil ->
+        html = fun.(html)
+        |> update_children(&traverse(&1, selector, fun))
+        siblings = traverse(siblings, selector, fun)
+        [html | siblings]
+
+      :descendant -> # Find deep descendants
+        html = html
+        |> update_children(&traverse(&1, combinator.selector, fun))
+        siblings = traverse(siblings, selector, fun)
+        [html | siblings]
+
+      :child -> # Find direct descendants
+        html = html
+        |> update_children(&traverse_children(&1, combinator.selector, fun))
+        siblings = traverse(siblings, selector, fun)
+        [html | siblings]
+
+      :sibling ->
+        siblings = siblings
+        |> traverse_siblings(combinator.selector, fun)
+        |> traverse(selector, fun)
+        [html | siblings]
+
+      :general_sibling ->
+        siblings = siblings
+        |> traverse_general_siblings(combinator.selector, fun)
+        |> traverse(selector, fun)
+        [html | siblings]
     end
   end
 
-  def traverse_siblings([], _selector, _fun), do: []
-  def traverse_siblings([html | siblings], selector, fun) do
-
-  end
-
-  def traverse_children([], _selector, _fun), do: []
-  def traverse_children([html | siblings], selector, fun) do
+  defp traverse_children([{_, _, _} = html | siblings], selector, fun) do
     if Selector.match?(html, selector) do
-      combinator = selector.combinator
-
-      case combinator do
-        nil ->
-          html = fun.(html)
-          siblings = traverse_children(siblings, selector, fun)
-          [html] ++ siblings
-        _ ->
-          html
-          |> update_children(&traverse_using(&1, combinator, siblings, fun))
-      end
+      [html | siblings]
+      |> traverse_combinator(selector, fun)
+    else
+      siblings = traverse(siblings, selector, fun)
+      [html | siblings]
     end
   end
 
-  def update_children({tag, attrs, children}, fun) do
+  defp traverse_children([node | rest], selector, fun),
+    do: [node | traverse_children(rest, selector, fun)]
+
+  defp traverse_siblings([{_, _, _} = html | siblings], selector, fun) do
+    if Selector.match?(html, selector) do
+      [html | siblings]
+      |> traverse_combinator(selector, fun)
+    else
+      [html | siblings]
+    end
+  end
+
+  defp traverse_siblings([node | rest], selector, fun),
+    do: [node | traverse_siblings(rest, selector, fun)]
+
+  defp traverse_general_siblings([{_, _, _} = html | siblings], selector, fun) do
+    if Selector.match?(html, selector) do
+      [html | siblings]
+      |> traverse_combinator(selector, fun)
+    else
+      siblings = traverse(siblings, selector, fun)
+      [html | siblings]
+    end
+  end
+
+  defp traverse_general_siblings([node | rest], selector, fun),
+    do: [node | traverse_siblings(rest, selector, fun)]
+
+  defp update_children({tag, attrs, children}, fun) do
     {tag, attrs, fun.(children)}
   end
 
-  @doc """
-  Reimplementation of Floki.Finder.get_selectors/1
-  """
-  def get_selectors(string) do
+  # Reimplementation of Floki.Finder.get_selectors/1
+  defp get_selectors(string) do
     string
     |> String.split(",")
     |> Enum.map(fn(s) ->
