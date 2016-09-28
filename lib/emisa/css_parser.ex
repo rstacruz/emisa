@@ -3,9 +3,9 @@ defmodule Emisa.CssParser do
   Parses a CSS string.
 
       [
-        {"@charset", [value: "\"utf-8\""]},
-        {"a", [], [{"color", "blue"}]},
-        {"@media", [value: "(min-width: 780px)"], [ ... ]}
+        {:charset, "utf-8", []},
+        {:declaration, "a", [{"color", "blue"}]},
+        {:media, "(min-width: 780px)", [ ... ]}
       ]
   """
 

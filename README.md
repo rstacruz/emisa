@@ -1,5 +1,10 @@
 # Emisa
 
+> Email inliner via style attributes
+
+Emisa inlines CSS styles into style attributes. This is a work in progress.
+
+<!--
 ## Installation
 
 1. Add `emisa` to your list of dependencies in `mix.exs`:
@@ -17,19 +22,18 @@
     [applications: [:emisa]]
   end
   ```
+-->
 
 ## Usage
 
 ```ex
 html = """
 <html>
+  <style>div { color: blue }</style>
   <div>hello</div>
 </html>
 """
 
-css = """
-div { color: blue }
-"""
-
-Emisa.build(html, css)
+Emisa.run(html)
+#=> "<html><div style="color:blue;">hello</div></html>"
 ```
