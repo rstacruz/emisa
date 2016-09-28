@@ -6,27 +6,17 @@ defmodule EmisaTest do
     assert 1 + 1 == 2
     html = """
     <html>
-    <div class="foo">hello</div>
+    <div class="foo" id="x">hello</div>
     </html>
     """
 
+    css = [
+      {".foo", [], [{"color", "blue"}, {"width", "300px"}]}
+    ]
+
     out = html
-    |> Floki.parse()
-    |> map(fn x -> x end)
-    |> Floki.raw_html()
-    IO.puts("-> html: #{inspect(out)}")
-  end
+    |> Emisa.run(css)
 
-  def map(html, fun) do
-    html = fun.(html)
-
-    case html do
-      {element, attributes, children} ->
-        children = children
-        |> Enum.map(&map(&1, fun))
-        {element, attributes, children}
-      node ->
-        node
-    end
+    IO.puts inspect(out)
   end
 end
