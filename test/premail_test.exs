@@ -32,6 +32,20 @@ defmodule EmisaTest do
       "<html><div style=\"color:blue;width:300px;\" class=\"foo\">hello</div></html>"
   end
 
+  test "sibling" do
+    html = ~S(<html><div class="foo">hello</div><a>hi</a></html>)
+
+    css = [
+      {:declaration, ".foo + a", [
+        {:rule, {"color", "blue"}, []}
+      ]}
+    ]
+
+    out = Emisa.run(html, css)
+    assert out ===
+      "<html><div class=\"foo\">hello</div><a style=\"color:blue;\">hi</a></html>"
+  end
+
   test "lala" do
     html = """
     <html>

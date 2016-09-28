@@ -48,7 +48,7 @@ defmodule Emisa.Transformer do
     end
   end
 
-  def traverse_using({_, _, _} = html, combinator, _siblings, fun) do
+  def traverse_using({_, _, _} = html, combinator, siblings, fun) do
     selector = combinator.selector
 
     case combinator.match_type do
@@ -57,12 +57,17 @@ defmodule Emisa.Transformer do
       :child ->
         html |> update_children(&traverse_children(&1, selector, fun))
       # :sibling ->
-      #   traverse_sibling(siblings, selector, fun)
+      #   siblings = traverse_sibling(siblings, selector, fun)
       # :general_sibling ->
       #   traverse_general_sibling(siblings, selector, fun)
       other ->
         raise "Combinator of type \"#{other}\" not implemented"
     end
+  end
+
+  def traverse_siblings([], _selector, _fun), do: []
+  def traverse_siblings([html | siblings], selector, fun) do
+
   end
 
   def traverse_children([], _selector, _fun), do: []
