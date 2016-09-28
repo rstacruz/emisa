@@ -11,9 +11,15 @@ defmodule Emisa do
   import Emisa.StyleRenderer, only: [style_to_s: 1]
 
   def run(html, css, _options \\ []) do
-    root = html |> Floki.parse()
+    root = html
+    |> Floki.parse()
+    |> inject_styles(css)
+    |> render_styles()
+    |> Floki.raw_html()
+  end
 
-    root = Enum.reduce(css, root, fn
+  def inject_styles(root, css) do
+    Enum.reduce(css, root, fn
       {:declaration, selector, rules}, root ->
         Transformer.transform(root, selector, fn node ->
           {tag, attrs, children} = node
@@ -23,17 +29,14 @@ defmodule Emisa do
       _, root ->
         root
     end)
+  end
 
-    root = Transformer.transform(root, fn node ->
+  def render_styles(root) do
+    Transformer.transform(root, fn node ->
       node
     end)
-
-    root
-    |> Floki.raw_html()
   end
 end
 
-# TODO: Sibling (+)
-# TODO: General sibling (~)
 # TODO: Specificity
 # TODO: Overriding existing style
