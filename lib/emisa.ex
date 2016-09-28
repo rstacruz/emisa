@@ -1,7 +1,7 @@
 defmodule Emisa.StyleRenderer do
   def style_to_s(rules)
   def style_to_s([]), do: ""
-  def style_to_s([{key, value} | tail]) do
+  def style_to_s([{:rule, {key, value}, []} | tail]) do
     "#{key}:#{value};" <> style_to_s(tail)
   end
 end

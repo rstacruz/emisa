@@ -6,7 +6,10 @@ defmodule EmisaTest do
     html = ~S(<html><div class="foo">hello</div></html>)
 
     css = [
-      {:declaration, ".foo", [{"color", "blue"}, {"width", "300px"}]}
+      {:declaration, ".foo", [
+        {:rule, {"color", "blue"}, []},
+        {:rule, {"width", "300px"}, []}
+      ]}
     ]
 
     out = Emisa.run(html, css)
@@ -18,7 +21,10 @@ defmodule EmisaTest do
     html = ~S(<html><div class="foo">hello</div></html>)
 
     css = [
-      {:declaration, "html div.foo", [{"color", "blue"}, {"width", "300px"}]}
+      {:declaration, "html div.foo", [
+        {:rule, {"color", "blue"}, []},
+        {:rule, {"width", "300px"}, []}
+      ]}
     ]
 
     out = Emisa.run(html, css)
@@ -35,9 +41,16 @@ defmodule EmisaTest do
     """
 
     css = [
-      {:declaration, "span a", [{"display", "block"}]},
-      {:declaration, "div", [{"display", "block"}]},
-      {:declaration, ".foo", [{"color", "blue"}, {"width", "300px"}]}
+      {:declaration, "span a", [
+        {:rule, {"display", "block"}, []}
+      ]},
+      {:declaration, "div", [
+        {:rule, {"display", "block"}, []}
+      ]},
+      {:declaration, ".foo", [
+        {:rule, {"color", "blue"}, []},
+        {:rule, {"width", "300px"}, []}
+      ]}
     ]
 
     out = html
