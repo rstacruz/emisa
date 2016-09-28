@@ -5,16 +5,22 @@ defmodule Emisa do
     root = html
     |> Floki.parse()
 
-    root = Enum.reduce(css, root, fn ({selector, _, _} = declaration, root) ->
+    root = Enum.reduce(css, root, fn ({selector, _, rules} = declaration, root) ->
       transform(root, selector, fn node ->
         {tag, attrs, children} = node
-        attrs = [{"style", "color: blue"}] ++ attrs
+        attrs = [{"style", style_to_s(rules)}] ++ attrs
         {tag, attrs, children}
       end)
     end)
 
     root
     |> Floki.raw_html()
+  end
+
+  def style_to_s(rules)
+  def style_to_s([]), do: ""
+  def style_to_s([{key, value} | tail]) do
+    "#{key}:#{value};" <> style_to_s(tail)
   end
 
   def transform(html, selector_string, fun) do
@@ -33,10 +39,10 @@ defmodule Emisa do
   def traverse([html | siblings], _, selectors, fun) do
     html = traverse(html, siblings, selectors, fun)
     siblings = traverse(siblings, [], selectors, fun)
-    [html | siblings]
+    [html] ++ siblings
   end
 
-  def traverse({_, _, children} = html, siblings, selector, fun) do
+  def traverse({tag, attrs, children} = html, siblings, selector, fun) do
     if Selector.match?(html, selector) do
       combinator = selector.combinator
 
@@ -46,10 +52,12 @@ defmodule Emisa do
           children = traverse(children, siblings, selector, fun)
           {tag, attrs, children}
         _ ->
+          raise "Unsupported"
           nil #traverse_using(combinator, children, siblings, fun)
       end
     else
-      traverse(children, siblings, selector, fun)
+      children = traverse(children, siblings, selector, fun)
+      {tag, attrs, children}
     end
   end
 

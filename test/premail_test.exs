@@ -12,7 +12,7 @@ defmodule EmisaTest do
     """
 
     css = [
-      {"a", [], [{"color", "blue"}]},
+      {"a", [], [{"color", "red"}]},
       {".foo", [], [{"color", "blue"}, {"width", "300px"}]}
     ]
 
