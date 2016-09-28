@@ -28,7 +28,7 @@ defmodule Emisa.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:floki, git: "https://github.com/bobjflong/floki.git", branch: "BL/transform"}
+      {:floki, "~> 0.9.0"}
     ]
   end
 end
