@@ -7,10 +7,12 @@ defmodule EmisaTest do
     html = """
     <html>
     <div class="foo" id="x">hello</div>
+    <a>Hello</a>
     </html>
     """
 
     css = [
+      {"a", [], [{"color", "blue"}]},
       {".foo", [], [{"color", "blue"}, {"width", "300px"}]}
     ]
 
