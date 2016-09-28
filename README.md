@@ -1,8 +1,8 @@
 # Emisa
 
-> __Em__ail __i__nliner via __s__tyle __a__ttributes
+> Email inliner via style attributes
 
-Emisa inlines CSS styles into style attributes for Elixir. This is a work in progress.
+Emisa (<b>Em</b>ail <b>i</b>nliner via <b>s</b>tyle <b>a</b>ttributes) inlines CSS styles into style attributes for Elixir. This is useful for sending emails. This is a work in progress.
 
 <!--
 ## Installation
